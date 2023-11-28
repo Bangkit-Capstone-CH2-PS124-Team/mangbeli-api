@@ -28,6 +28,9 @@ const dbUsers = db.define("users", {
     // img_profile: {
     //     type: DataTypes.STRING,
     // },
+    // role: {
+    //     type: DataTypes.STRING,
+    // },
 }, {
     freezzTableName: true,
 });

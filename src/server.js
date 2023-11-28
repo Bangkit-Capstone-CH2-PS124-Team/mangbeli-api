@@ -1,14 +1,14 @@
 import "dotenv/config";
 import express from "express";
+import cookieParser from "cookie-parser";
 import db from "./config/database.js";
 // import dbUsers from "./models/users.js";
 import users from "./routes/users.js";
 import register from "./routes/register.js";
 import login from "./routes/login.js";
+import token from "./routes/token.js";
 const port = process.env.PORT;
 const app = express();
-
-app.use(express.json());
 
 try {
     await db.authenticate();
@@ -18,9 +18,13 @@ try {
     console.error(error);
 }
 
+app.use(cookieParser());
+app.use(express.json());
+
 app.use("/users", users);
 app.use("/register", register);
 app.use("/login", login);
+app.use("/token", token);
 
 app.listen(port, ()=> {
     console.log(`[SERVER] is running on http://localhost:${port}`);

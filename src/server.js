@@ -4,6 +4,7 @@ import db from "./config/database.js";
 // import dbUsers from "./models/users.js";
 import users from "./routes/users.js";
 import register from "./routes/register.js";
+import login from "./routes/login.js";
 const port = process.env.PORT;
 const app = express();
 
@@ -19,6 +20,7 @@ try {
 
 app.use("/users", users);
 app.use("/register", register);
+app.use("/login", login);
 
 app.listen(port, ()=> {
     console.log(`[SERVER] is running on http://localhost:${port}`);

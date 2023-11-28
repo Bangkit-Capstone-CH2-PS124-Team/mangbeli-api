@@ -18,7 +18,7 @@ export const Register = async (req, res) => {
 
         if (password !== confPassword) {
             return res.status(400).json({
-                message: "Password dan Confirm Password tidak sama!",
+                message: "Password and Confirm Password do not match!",
             });
         }
 

@@ -7,6 +7,7 @@ import users from "./routes/users.js";
 import register from "./routes/register.js";
 import login from "./routes/login.js";
 import token from "./routes/token.js";
+import logout from "./routes/logout.js";
 const port = process.env.PORT;
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/users", users);
 app.use("/register", register);
 app.use("/login", login);
 app.use("/token", token);
+app.use("/logout", logout);
 
 app.listen(port, ()=> {
     console.log(`[SERVER] is running on http://localhost:${port}`);

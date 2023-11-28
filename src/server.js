@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+
 import db from "./config/database.js";
 // import dbUsers from "./models/users.js";
 import users from "./routes/users.js";
@@ -19,6 +21,7 @@ try {
     console.error(error);
 }
 
+app.use(cors({credentials: true, origin: "*"}));
 app.use(cookieParser());
 app.use(express.json());
 

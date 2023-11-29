@@ -18,6 +18,7 @@ try {
     console.log("[DATABASE] Connection has been established successfully.");
     // await dbUsers.sync();
 } catch (error) {
+    console.log("[DATABASE] Unable to connect to the database: ");
     console.error(error);
 }
 

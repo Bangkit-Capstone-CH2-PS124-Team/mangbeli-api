@@ -4,9 +4,31 @@ import bcrypt from "bcrypt";
 export const Register = async (req, res) => {
     const {name, email, password, confPassword, role} = req.body;
     try {
+        if (!name || !email || !password || !confPassword || !role) {
+            return res.status(400).json({
+                error: true,
+                message: "All fields are required",
+            });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            return res.status(400).json({
+                error: true,
+                message: "Invalid email format",
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                error: true,
+                message: "Password must be at least 6 characters",
+            });
+        }
+
         const existingUser = await dbUsers.findOne({
             where: {
-                email: email,
+                email,
             },
         });
 
@@ -38,10 +60,12 @@ export const Register = async (req, res) => {
             error: false,
             message: "User Created",
         });
-    } catch (error) {
+    } catch (err) {
+        // console.error(err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
+            errorMessage: err.message,
         });
     }
 };

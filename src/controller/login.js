@@ -4,20 +4,53 @@ import jwt from "jsonwebtoken";
 
 export const Login = async (req, res) => {
     try {
-        const user = await dbUsers.findAll({
-            where: {
-                email: req.body.email,
-            },
-        });
-        const match = await bcrypt.compare(req.body.password, user[0].password);
-        if (!match) {
+        const {email, password} = req.body;
+
+        if (!email || !password) {
             return res.status(400).json({
-                message: "Wrong Password!",
+                error: true,
+                message: "All fields are required",
             });
         }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            return res.status(400).json({
+                error: true,
+                message: "Invalid email format",
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                error: true,
+                message: "Password must be at least 6 characters",
+            });
+        }
+
+        const user = await dbUsers.findAll({
+            where: {
+                email,
+            },
+        });
+
+        if (!user || user.length === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "Email is not registered",
+            });
+        }
+
+        const match = await bcrypt.compare(password, user[0].password);
+        if (!match) {
+            return res.status(400).json({
+                error: true,
+                message: "Wrong Password",
+            });
+        }
+
         const userId = user[0].id;
         const name = user[0].name;
-        const email = user[0].email;
         const accessToken = jwt.sign({userId, name, email},
             process.env.ACCESS_TOKEN_SECRET, {
                 expiresIn: "60s",
@@ -31,15 +64,30 @@ export const Login = async (req, res) => {
                 id: userId,
             },
         });
+
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000, // 1d
             secure: true,
         });
-        res.json({accessToken});
-    } catch (error) {
-        res.status(404).json({
-            message: "Email is not registered yet!",
+
+        res.json({
+            error: false,
+            message: "Login successful",
+            loginResult: {
+                userId,
+                name,
+                email,
+                accessToken,
+            },
+
+        });
+    } catch (err) {
+        // console.error(err);
+        res.status(500).json({
+            error: true,
+            message: "Internal Server Error",
+            errorMessage: err.message,
         });
     }
 };

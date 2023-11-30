@@ -22,10 +22,10 @@ try {
     console.error(error);
 }
 
-app.use(cors({credentials: true, origin: "*"}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(cors({credentials: true, origin: "*"}));
 
 app.get("/", (req, res) => {
     res.json({
@@ -39,6 +39,13 @@ app.use("/register", register);
 app.use("/login", login);
 app.use("/token", token);
 app.use("/logout", logout);
+
+app.use((req, res) => {
+    res.status(404).json({
+        error: true,
+        message: "Not found",
+    });
+});
 
 const server = app.listen(port, () => {
     const address = server.address().address;

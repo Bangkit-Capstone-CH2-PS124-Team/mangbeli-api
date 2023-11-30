@@ -6,7 +6,12 @@ export const getUsers = async (req, res) => {
         res.status(200).json({
             users: users,
         });
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        // console.error(err);
+        res.status(500).json({
+            error: true,
+            message: "Internal Server Error",
+            errorMessage: err.message,
+        });
     }
 };

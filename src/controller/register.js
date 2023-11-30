@@ -2,7 +2,7 @@ import dbUsers from "../models/users.js";
 import bcrypt from "bcrypt";
 
 export const Register = async (req, res) => {
-    const {name, email, password, confPassword} = req.body;
+    const {name, email, password, confPassword, role} = req.body;
     try {
         const existingUser = await dbUsers.findOne({
             where: {
@@ -12,13 +12,15 @@ export const Register = async (req, res) => {
 
         if (existingUser) {
             return res.status(400).json({
-                message: "Email is already registered.",
+                error: true,
+                message: "Email is already registered",
             });
         }
 
         if (password !== confPassword) {
             return res.status(400).json({
-                message: "Password and Confirm Password do not match!",
+                error: true,
+                message: "Password and Confirm Password do not match",
             });
         }
 
@@ -29,16 +31,17 @@ export const Register = async (req, res) => {
             name,
             email,
             password: hashPassword,
+            role,
         });
 
         res.status(201).json({
-            message: "Register Success",
+            error: false,
+            message: "User Created",
         });
     } catch (error) {
-        console.log(error);
         res.status(500).json({
+            error: true,
             message: "Internal Server Error",
-            error: error,
         });
     }
 };

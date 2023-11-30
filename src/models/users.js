@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 import {Sequelize} from "sequelize";
 import db from "../config/database.js";
 
@@ -16,8 +17,17 @@ const dbUsers = db.define("users", {
     refresh_token: {
         type: DataTypes.TEXT,
     },
+    role: {
+        type: DataTypes.ENUM("user", "vendor"),
+    },
     // no_hp: {
     //     type: DataTypes.STRING,
+    // },
+    // img_profile: {
+    //     type: DataTypes.STRING,
+    // },
+    // favorite: {
+    //     type: DataTypes.JSON,
     // },
     // latitude: {
     //     type: DataTypes.STRING,
@@ -25,14 +35,8 @@ const dbUsers = db.define("users", {
     // longitude: {
     //     type: DataTypes.STRING,
     // },
-    // img_profile: {
-    //     type: DataTypes.STRING,
-    // },
-    // role: {
-    //     type: DataTypes.STRING,
-    // },
 }, {
-    freezzTableName: true,
+    freezeTableName: true,
 });
 
 export default dbUsers;

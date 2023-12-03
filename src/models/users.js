@@ -20,21 +20,21 @@ const dbUsers = db.define("users", {
     role: {
         type: DataTypes.ENUM("user", "vendor"),
     },
-    // no_hp: {
-    //     type: DataTypes.STRING,
-    // },
-    // img_profile: {
-    //     type: DataTypes.STRING,
-    // },
-    // favorite: {
-    //     type: DataTypes.JSON,
-    // },
-    // latitude: {
-    //     type: DataTypes.STRING,
-    // },
-    // longitude: {
-    //     type: DataTypes.STRING,
-    // },
+    no_hp: {
+        type: DataTypes.STRING,
+    },
+    img_profile: {
+        type: DataTypes.STRING,
+    },
+    favorite: {
+        type: DataTypes.JSON,
+    },
+    latitude: {
+        type: DataTypes.STRING,
+    },
+    longitude: {
+        type: DataTypes.STRING,
+    },
 }, {
     freezeTableName: true,
 });

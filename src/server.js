@@ -17,9 +17,9 @@ try {
     await db.authenticate();
     console.log("[DATABASE] Connection has been established successfully");
     // await dbUsers.sync();
-} catch (error) {
-    console.log("[DATABASE] Unable to connect to the database:");
-    console.error(error);
+} catch (err) {
+    console.log("[DATABASE] Failed to establish a connection to the database");
+    console.error("[ERROR]", err);
 }
 
 app.use(cookieParser());
@@ -34,9 +34,9 @@ app.get("/", (req, res) => {
     });
 });
 
-app.use("/users", users);
 app.use("/register", register);
 app.use("/login", login);
+app.use("/users", users);
 app.use("/token", token);
 app.use("/logout", logout);
 
@@ -47,7 +47,6 @@ app.use((req, res) => {
     });
 });
 
-const server = app.listen(port, () => {
-    const address = server.address().address;
-    console.log(`[SERVER] is running on http://${address}:${port}`);
+app.listen(port, ()=> {
+    console.log(`[SERVER] Running on port ${port}`);
 });

@@ -2,12 +2,23 @@ import dbUsers from "../models/users.js";
 
 export const getUsers = async (req, res) => {
     try {
+        const accessToken = req.headers.authorization;
+
+        if (!accessToken) {
+            return res.status(403).json({
+                error: true,
+                message: "Unauthorized: Missing or invalid access token",
+            });
+        }
+
         const users = await dbUsers.findAll();
-        res.status(200).json({
+
+        res.json({
+            error: false,
             users: users,
         });
     } catch (err) {
-        // console.error(err);
+        // console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

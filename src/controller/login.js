@@ -60,6 +60,7 @@ export const Login = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET, {
                 expiresIn: "1d",
             });
+
         await dbUsers.update({refresh_token: refreshToken}, {
             where: {
                 id: userId,
@@ -82,10 +83,9 @@ export const Login = async (req, res) => {
                 role,
                 accessToken,
             },
-
         });
     } catch (err) {
-        // console.error(err);
+        // console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

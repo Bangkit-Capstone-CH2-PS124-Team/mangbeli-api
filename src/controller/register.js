@@ -2,8 +2,9 @@ import dbUsers from "../models/users.js";
 import bcrypt from "bcrypt";
 
 export const Register = async (req, res) => {
-    const {name, email, password, confPassword, role} = req.body;
     try {
+        const {name, email, password, confPassword, role} = req.body;
+
         if (!name || !email || !password || !confPassword || !role) {
             return res.status(400).json({
                 error: true,
@@ -19,13 +20,6 @@ export const Register = async (req, res) => {
             });
         }
 
-        if (password.length < 8) {
-            return res.status(400).json({
-                error: true,
-                message: "Password must be at least 8 characters",
-            });
-        }
-
         const existingUser = await dbUsers.findOne({
             where: {
                 email,
@@ -36,6 +30,13 @@ export const Register = async (req, res) => {
             return res.status(400).json({
                 error: true,
                 message: "Email is already registered",
+            });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                error: true,
+                message: "Password must be at least 8 characters",
             });
         }
 
@@ -61,7 +62,7 @@ export const Register = async (req, res) => {
             message: "User Created",
         });
     } catch (err) {
-        // console.error(err);
+        // console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

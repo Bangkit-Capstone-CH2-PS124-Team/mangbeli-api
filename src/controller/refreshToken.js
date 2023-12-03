@@ -6,7 +6,10 @@ export const refreshToken = async (req, res) => {
         const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {
-            return res.sendStatus(401);
+            return res.status(401).json({
+                error: true,
+                message: "Unauthorized: Missing refresh token",
+            });
         }
 
         const user = await dbUsers.findAll({
@@ -16,14 +19,21 @@ export const refreshToken = async (req, res) => {
         });
 
         if (!user[0]) {
-            return res.sendStatus(403);
+            return res.status(403).json({
+                error: true,
+                message: "Forbidden: Invalid refresh token",
+            });
         }
 
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET,
             (err, decoded) => {
                 if (err) {
-                    return res.sendStatus(403);
+                    return res.status(403).json({
+                        error: true,
+                        message: "Forbidden: Invalid refresh token",
+                    });
                 }
+
                 const userId = user[0].id;
                 const name = user[0].name;
                 const email = user[0].email;
@@ -31,13 +41,14 @@ export const refreshToken = async (req, res) => {
                     process.env.ACCESS_TOKEN_SECRET, {
                         expiresIn: "60s",
                     });
+
                 res.json({
                     error: false,
                     accessToken,
                 });
             });
     } catch (err) {
-        // console.error(err);
+        // console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

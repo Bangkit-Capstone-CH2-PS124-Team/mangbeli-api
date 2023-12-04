@@ -49,7 +49,7 @@ export const Login = async (req, res) => {
             });
         }
 
-        const userId = user[0].id;
+        const userId = user[0].userId;
         const name = user[0].name;
         const role = user[0].role;
         const accessToken = jwt.sign({userId, name, email},
@@ -63,7 +63,7 @@ export const Login = async (req, res) => {
 
         await dbUsers.update({refresh_token: refreshToken}, {
             where: {
-                id: userId,
+                userId,
             },
         });
 

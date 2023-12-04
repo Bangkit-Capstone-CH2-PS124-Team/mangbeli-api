@@ -5,9 +5,9 @@ export const getUsers = async (req, res) => {
         const accessToken = req.headers.authorization;
 
         if (!accessToken) {
-            return res.status(403).json({
+            return res.status(401).json({
                 error: true,
-                message: "Unauthorized: Missing or invalid access token",
+                message: "Unauthorized: Missing access token",
             });
         }
 

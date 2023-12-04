@@ -21,13 +21,6 @@ export const Login = async (req, res) => {
             });
         }
 
-        if (password.length < 8) {
-            return res.status(400).json({
-                error: true,
-                message: "Password must be at least 8 characters",
-            });
-        }
-
         const user = await dbUsers.findAll({
             where: {
                 email,
@@ -38,6 +31,13 @@ export const Login = async (req, res) => {
             return res.status(404).json({
                 error: true,
                 message: "Email is not registered",
+            });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                error: true,
+                message: "Password must be at least 8 characters",
             });
         }
 

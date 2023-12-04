@@ -4,39 +4,51 @@ import db from "../config/database.js";
 
 const {DataTypes} = Sequelize;
 
-const dbUsers = db.define("users", {
-    name: {
-        type: DataTypes.STRING,
+const dbUsers = db.define(
+    "users", {
+        userId: {
+            type: DataTypes.STRING,
+            primaryKey: true,
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
+        password: {
+            type: DataTypes.STRING,
+        },
+        refresh_token: {
+            type: DataTypes.TEXT,
+        },
+        photo_url: {
+            type: DataTypes.STRING,
+        },
+        no_hp: {
+            type: DataTypes.STRING,
+        },
+        role: {
+            type: DataTypes.ENUM("user", "vendor"),
+            allowNull: false,
+        },
+        latitude: {
+            type: DataTypes.DOUBLE,
+        },
+        longitude: {
+            type: DataTypes.DOUBLE,
+        },
+        favorite: {
+            type: DataTypes.JSON,
+        },
     },
-    email: {
-        type: DataTypes.STRING,
+    {
+        freezeTableName: true,
+        timestamps: true,
     },
-    password: {
-        type: DataTypes.STRING,
-    },
-    refresh_token: {
-        type: DataTypes.TEXT,
-    },
-    role: {
-        type: DataTypes.ENUM("user", "vendor"),
-    },
-    no_hp: {
-        type: DataTypes.STRING,
-    },
-    img_profile: {
-        type: DataTypes.STRING,
-    },
-    favorite: {
-        type: DataTypes.JSON,
-    },
-    latitude: {
-        type: DataTypes.STRING,
-    },
-    longitude: {
-        type: DataTypes.STRING,
-    },
-}, {
-    freezeTableName: true,
-});
+);
 
 export default dbUsers;

@@ -11,6 +11,7 @@ import users from "./routes/users.js";
 import token from "./routes/token.js";
 import logout from "./routes/logout.js";
 import location from "./routes/location.js";
+import vendors from "./routes/vendors.js";
 
 const port = process.env.PORT;
 const app = express();
@@ -42,6 +43,7 @@ app.use("/users", users);
 app.use("/token", token);
 app.use("/logout", logout);
 app.use("/location", location);
+app.use("/vendors", vendors);
 
 app.use((req, res) => {
     res.status(404).json({

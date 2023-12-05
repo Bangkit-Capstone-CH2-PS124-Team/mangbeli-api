@@ -10,6 +10,7 @@ import login from "./routes/login.js";
 import location from "./routes/location.js";
 import vendors from "./routes/vendors.js";
 import user from "./routes/user.js";
+import vendor from "./routes/vendor.js";
 import token from "./routes/token.js";
 import logout from "./routes/logout.js";
 
@@ -42,6 +43,7 @@ app.use("/login", login);
 app.use("/location", location);
 app.use("/vendors", vendors);
 app.use("/user", user);
+app.use("/vendor", vendor);
 app.use("/token", token);
 app.use("/logout", logout);
 

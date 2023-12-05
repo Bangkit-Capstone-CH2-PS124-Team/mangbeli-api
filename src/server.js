@@ -40,10 +40,10 @@ app.get("/", (req, res) => {
 app.use("/register", register);
 app.use("/login", login);
 app.use("/users", users);
-app.use("/token", token);
-app.use("/logout", logout);
 app.use("/location", location);
 app.use("/vendors", vendors);
+app.use("/token", token);
+app.use("/logout", logout);
 
 app.use((req, res) => {
     res.status(404).json({

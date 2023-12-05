@@ -2,20 +2,20 @@ import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
+    const accessToken = authHeader && authHeader.split(" ")[1];
 
-    if (!token) {
+    if (!accessToken) {
         return res.status(401).json({
             error: true,
-            message: "Unauthorized: Missing refresh token",
+            message: "Missing access token",
         });
     }
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
             return res.status(403).json({
                 error: true,
-                message: "Forbidden: Invalid refresh token",
+                message: "Invalid access token",
             });
         }
 

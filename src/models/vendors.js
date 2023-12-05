@@ -38,4 +38,6 @@ const dbVendors = db.define(
     },
 );
 
+dbVendors.belongsTo(dbUsers, {foreignKey: "userId"});
+
 export default dbVendors;

@@ -41,4 +41,7 @@ const dbTracks = db.define(
     },
 );
 
+dbTracks.belongsTo(dbUsers, {foreignKey: "userId"});
+dbTracks.belongsTo(dbVendors, {foreignKey: "vendorId"});
+
 export default dbTracks;

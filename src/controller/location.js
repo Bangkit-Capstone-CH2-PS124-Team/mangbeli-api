@@ -46,13 +46,20 @@ export const postLoc = async (req, res) => {
 
 export const getLoc = async (req, res) => {
     try {
-        const userId = req.query.userId;
         const accessToken = req.headers.authorization;
+        const userId = req.query.userId;
 
         if (!accessToken) {
             return res.status(401).json({
                 error: true,
                 message: "Unauthorized: Missing access token",
+            });
+        }
+
+        if (!userId) {
+            return res.status(401).json({
+                error: true,
+                message: "Parameter userId required",
             });
         }
 
@@ -74,6 +81,7 @@ export const getLoc = async (req, res) => {
 
         res.json({
             error: false,
+            message: "Location fetched successfully",
             latitude,
             longitude,
         });

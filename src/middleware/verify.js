@@ -4,7 +4,7 @@ export const verifyToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
 
-    if (token == null) {
+    if (!token) {
         return res.status(401).json({
             error: true,
             message: "Unauthorized: Missing refresh token",
@@ -21,6 +21,7 @@ export const verifyToken = (req, res, next) => {
 
         req.userId = decoded.userId;
         req.email = decoded.email;
+        req.role = decoded.role;
 
         next();
     });

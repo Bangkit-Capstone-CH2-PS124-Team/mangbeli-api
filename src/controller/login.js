@@ -49,21 +49,22 @@ export const Login = async (req, res) => {
             });
         }
 
-        const userId = user[0].id;
+        const userId = user[0].userId;
         const name = user[0].name;
         const role = user[0].role;
-        const accessToken = jwt.sign({userId, name, email},
+        const accessToken = jwt.sign({userId, email, role},
             process.env.ACCESS_TOKEN_SECRET, {
-                expiresIn: "60s",
+                // expiresIn: "60s",
+                expiresIn: "1d",
             });
-        const refreshToken = jwt.sign({userId, name, email},
+        const refreshToken = jwt.sign({userId, email, role},
             process.env.REFRESH_TOKEN_SECRET, {
                 expiresIn: "1d",
             });
 
         await dbUsers.update({refresh_token: refreshToken}, {
             where: {
-                id: userId,
+                userId,
             },
         });
 

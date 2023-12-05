@@ -1,5 +1,10 @@
 import dbUsers from "../models/users.js";
+import dbVendors from "../models/vendors.js";
 import bcrypt from "bcrypt";
+import {customAlphabet} from "nanoid";
+
+// eslint-disable-next-line max-len
+const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 10);
 
 export const Register = async (req, res) => {
     try {
@@ -47,15 +52,32 @@ export const Register = async (req, res) => {
             });
         }
 
+        if (role !== "user" && role !== "vendor") {
+            return res.status(400).json({
+                error: true,
+                message: "Invalid role",
+            });
+        }
+
+        const userId = nanoid();
+
         const salt = await bcrypt.genSalt();
         const hashPassword = await bcrypt.hash(password, salt);
 
-        await dbUsers.create({
+        const newUser = await dbUsers.create({
+            userId,
             name,
             email,
             password: hashPassword,
             role,
         });
+
+        if (role === "vendor") {
+            await dbVendors.create({
+                vendorId: nanoid(),
+                userId: newUser.userId,
+            });
+        }
 
         res.status(201).json({
             error: false,

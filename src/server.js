@@ -5,11 +5,14 @@ import cors from "cors";
 
 import db from "./config/database.js";
 // import dbUsers from "./models/users.js";
-import users from "./routes/users.js";
 import register from "./routes/register.js";
 import login from "./routes/login.js";
+import users from "./routes/users.js";
 import token from "./routes/token.js";
 import logout from "./routes/logout.js";
+import location from "./routes/location.js";
+import vendors from "./routes/vendors.js";
+
 const port = process.env.PORT;
 const app = express();
 
@@ -39,6 +42,8 @@ app.use("/login", login);
 app.use("/users", users);
 app.use("/token", token);
 app.use("/logout", logout);
+app.use("/location", location);
+app.use("/vendors", vendors);
 
 app.use((req, res) => {
     res.status(404).json({

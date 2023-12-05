@@ -1,48 +1,38 @@
 /* eslint-disable new-cap */
 import {Sequelize} from "sequelize";
 import db from "../config/database.js";
+import dbUsers from "./users.js";
+import dbVendors from "./vendors.js";
 
 const {DataTypes} = Sequelize;
 
-const dbUsers = db.define(
-    "users", {
-        userId: {
+const dbTracks = db.define(
+    "tracks", {
+        trackId: {
             type: DataTypes.STRING,
             primaryKey: true,
         },
-        name: {
+        vendorId: {
             type: DataTypes.STRING,
             allowNull: false,
+            references: {
+                model: dbVendors,
+                key: "vendorId",
+            },
         },
-        email: {
+        userId: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
-        },
-        password: {
-            type: DataTypes.STRING,
-        },
-        refresh_token: {
-            type: DataTypes.TEXT,
-        },
-        photo_url: {
-            type: DataTypes.STRING,
-        },
-        no_hp: {
-            type: DataTypes.STRING,
-        },
-        role: {
-            type: DataTypes.ENUM("user", "vendor"),
-            allowNull: false,
+            references: {
+                model: dbUsers,
+                key: "userId",
+            },
         },
         latitude: {
             type: DataTypes.DOUBLE,
         },
         longitude: {
             type: DataTypes.DOUBLE,
-        },
-        favorite: {
-            type: DataTypes.JSON,
         },
     },
     {
@@ -51,4 +41,7 @@ const dbUsers = db.define(
     },
 );
 
-export default dbUsers;
+dbTracks.belongsTo(dbUsers, {foreignKey: "userId"});
+dbTracks.belongsTo(dbVendors, {foreignKey: "vendorId"});
+
+export default dbTracks;

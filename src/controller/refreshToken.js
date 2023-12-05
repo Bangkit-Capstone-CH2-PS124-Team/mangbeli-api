@@ -34,7 +34,7 @@ export const refreshToken = async (req, res) => {
                     });
                 }
 
-                const userId = user[0].id;
+                const userId = user[0].userId;
                 const name = user[0].name;
                 const email = user[0].email;
                 const accessToken = jwt.sign({userId, name, email},

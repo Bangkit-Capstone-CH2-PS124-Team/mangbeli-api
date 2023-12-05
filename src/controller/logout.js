@@ -18,10 +18,10 @@ export const Logout = async (req, res) => {
             return res.sendStatus(204);
         }
 
-        const userId = user[0].id;
+        const userId = user[0].userId;
         await dbUsers.update({refresh_token: null}, {
             where: {
-                id: userId,
+                userId,
             },
         });
 

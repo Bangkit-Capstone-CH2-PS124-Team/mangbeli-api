@@ -1,6 +1,6 @@
 import dbUsers from "../models/users.js";
 
-export const postLoc = async (req, res) => {
+export const patchLoc = async (req, res) => {
     try {
         const accessToken = req.headers.authorization;
         const {latitude, longitude} = req.body;

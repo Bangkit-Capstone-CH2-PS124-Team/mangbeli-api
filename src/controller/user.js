@@ -1,6 +1,12 @@
 /* eslint-disable camelcase */
 import dbUsers from "../models/users.js";
 import bcrypt from "bcrypt";
+import {Storage} from "@google-cloud/storage";
+import path from "path";
+import mime from "mime-types";
+
+const storage = new Storage({keyFilename: "credentials.json"});
+const bucket = storage.bucket(process.env.BUCKET_NAME);
 
 export const getUser = async (req, res) => {
     try {
@@ -104,6 +110,95 @@ export const patchUser = async (req, res) => {
             error: false,
             message: "User updated successfully",
         });
+    } catch (err) {
+        // console.error("[ERROR]", err);
+        res.status(500).json({
+            error: true,
+            message: "Internal Server Error",
+            errorMessage: err.message,
+        });
+    }
+};
+
+export const uploadImage = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        if (!req.file) {
+            return res.status(400).json({
+                error: true,
+                message: "File image are required",
+            });
+        }
+
+        const allowedExtensions = [".jpg", ".jpeg", ".png"];
+        const fileExt = path.extname(req.file.originalname).toLowerCase();
+
+        if (!allowedExtensions.includes(fileExt)) {
+            return res.status(400).json({
+                error: true,
+                message: "File extension not allowed",
+            });
+        }
+
+        const allowedMimeTypes = ["image/jpeg", "image/png"];
+        const mimeType = mime.lookup(req.file.originalname);
+
+        if (!mimeType || !allowedMimeTypes.includes(mimeType)) {
+            return res.status(400).json({
+                error: true,
+                message: "File type not allowed",
+            });
+        }
+
+        const maxSize = 5 * 1024 * 1024; // 5 MB
+        if (req.file.size > maxSize) {
+            return res.status(400).json({
+                error: true,
+                message: "File size exceeds the maximum allowed size (5 MB)",
+            });
+        }
+
+        const timestamp = new Date().getTime();
+        const fileName = `${userId}-${timestamp}.jpg`;
+        const blob = bucket.file(fileName);
+        const blobStream = blob.createWriteStream({
+            metadata: {
+                contentType: `image/${fileExt.slice(1)}`,
+            },
+        });
+
+        blobStream.on("error", (err) => {
+            // console.error("[ERROR] uploading file:", err);
+            return res.status(500).json({
+                error: true,
+                message: "Error uploading image",
+                errorMessage: err.message,
+            });
+        });
+
+        blobStream.on("finish", async () => {
+            req.file.cloudStoragePublicUrl = `https://storage.googleapis.com/${process.env.BUCKET_NAME}/${fileName}`;
+
+            await dbUsers.update(
+                {
+                    image_url: req.file.cloudStoragePublicUrl,
+                },
+                {
+                    where: {
+                        userId,
+                    },
+                },
+            ),
+
+            res.json({
+                error: false,
+                message: "Image uploaded successfully",
+                imageUrl: req.file.cloudStoragePublicUrl,
+            });
+        });
+
+        blobStream.end(req.file.buffer);
     } catch (err) {
         // console.error("[ERROR]", err);
         res.status(500).json({

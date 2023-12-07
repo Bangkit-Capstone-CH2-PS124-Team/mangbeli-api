@@ -23,7 +23,15 @@ export const getUser = async (req, res) => {
             where: {
                 userId,
             },
+            attributes: {exclude: ["password", "refresh_token"]},
         });
+
+        if (!user) {
+            return res.status(404).json({
+                error: true,
+                message: "User not found",
+            });
+        }
 
         res.json({
             error: false,

@@ -18,6 +18,13 @@ export const getVendor = async (req, res) => {
             },
         });
 
+        if (!vendor) {
+            return res.status(404).json({
+                error: true,
+                message: "Vendor not found",
+            });
+        }
+
         res.json({
             error: false,
             message: "Vendor fetched successfully",

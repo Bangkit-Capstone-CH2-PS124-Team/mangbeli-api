@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get("/profile", verifyToken, myProfile);
 router.patch("/profile", verifyToken, patchProfile);
-router.patch("/profile/upload", upload.single("image"), verifyToken, uploadImage);
+router.post("/profile/upload", upload.single("image"), verifyToken, uploadImage);
 router.get("/", verifyToken, getUser);
 router.all("/", (req, res) => {
     res.status(405).json({

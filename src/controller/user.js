@@ -19,13 +19,6 @@ export const myProfile = async (req, res) => {
             attributes: {exclude: ["password", "refresh_token"]},
         });
 
-        if (!user) {
-            return res.status(404).json({
-                error: true,
-                message: "User not found",
-            });
-        }
-
         res.json({
             error: false,
             message: "User fetched successfully",

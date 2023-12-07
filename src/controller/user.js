@@ -41,47 +41,7 @@ export const myProfile = async (req, res) => {
     }
 };
 
-export const getUser = async (req, res) => {
-    try {
-        const userId = req.query.userId;
-
-        if (!userId) {
-            return res.status(400).json({
-                error: true,
-                message: "Parameter userId required",
-            });
-        }
-
-        const user = await dbUsers.findOne({
-            where: {
-                userId,
-            },
-            attributes: {exclude: ["password", "refresh_token"]},
-        });
-
-        if (!user) {
-            return res.status(404).json({
-                error: true,
-                message: "User not found",
-            });
-        }
-
-        res.json({
-            error: false,
-            message: "User fetched successfully",
-            dataUser: user,
-        });
-    } catch (err) {
-        // console.error("[ERROR]", err);
-        res.status(500).json({
-            error: true,
-            message: "Internal Server Error",
-            errorMessage: err.message,
-        });
-    }
-};
-
-export const patchUser = async (req, res) => {
+export const patchProfile = async (req, res) => {
     try {
         const userId = req.userId;
         const {name, oldPassword, newPassword, no_hp, favorite} = req.body;
@@ -240,6 +200,46 @@ export const uploadImage = async (req, res) => {
         });
 
         blobStream.end(req.file.buffer);
+    } catch (err) {
+        // console.error("[ERROR]", err);
+        res.status(500).json({
+            error: true,
+            message: "Internal Server Error",
+            errorMessage: err.message,
+        });
+    }
+};
+
+export const getUser = async (req, res) => {
+    try {
+        const userId = req.query.userId;
+
+        if (!userId) {
+            return res.status(400).json({
+                error: true,
+                message: "Parameter userId required",
+            });
+        }
+
+        const user = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: {exclude: ["password", "refresh_token"]},
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                error: true,
+                message: "User not found",
+            });
+        }
+
+        res.json({
+            error: false,
+            message: "User fetched successfully",
+            dataUser: user,
+        });
     } catch (err) {
         // console.error("[ERROR]", err);
         res.status(500).json({

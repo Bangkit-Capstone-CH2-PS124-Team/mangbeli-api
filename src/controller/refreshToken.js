@@ -8,7 +8,7 @@ export const refreshToken = async (req, res) => {
         if (!refreshToken) {
             return res.status(401).json({
                 error: true,
-                message: "Unauthorized: Missing refresh token",
+                message: "Missing refresh token",
             });
         }
 
@@ -21,7 +21,7 @@ export const refreshToken = async (req, res) => {
         if (!user[0]) {
             return res.status(403).json({
                 error: true,
-                message: "Forbidden: Invalid refresh token",
+                message: "Invalid refresh token",
             });
         }
 
@@ -30,7 +30,7 @@ export const refreshToken = async (req, res) => {
                 if (err) {
                     return res.status(403).json({
                         error: true,
-                        message: "Forbidden: Invalid refresh token",
+                        message: "Invalid refresh token",
                     });
                 }
 
@@ -39,7 +39,7 @@ export const refreshToken = async (req, res) => {
                 const email = user[0].email;
                 const accessToken = jwt.sign({userId, name, email},
                     process.env.ACCESS_TOKEN_SECRET, {
-                        expiresIn: "60s",
+                        expiresIn: "1h",
                     });
 
                 res.json({

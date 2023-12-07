@@ -25,7 +25,7 @@ const dbUsers = db.define(
         refresh_token: {
             type: DataTypes.TEXT,
         },
-        photo_url: {
+        image_url: {
             type: DataTypes.STRING,
         },
         no_hp: {

@@ -1,40 +1,48 @@
-/* eslint-disable max-len */
 import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
 
 export const getVendors = async (req, res) => {
     try {
-        const accessToken = req.headers.authorization;
+        const size = parseInt(req.query.size);
+        const location = parseInt(req.query.location) || 0;
+        let vendors;
 
-        if (!accessToken) {
-            return res.status(401).json({
+        if (location !== 1 && location !== 0) {
+            return res.status(400).json({
                 error: true,
-                message: "Unauthorized: Missing access token",
+                message: "Invalid value parameter location",
             });
         }
 
-        const {size, location} = req.query;
-        let vendors;
-
-        if (location === "1") {
+        if (location === 1) {
             vendors = await dbVendors.findAll({
                 include: [
                     {
                         model: dbUsers,
-                        attributes: ["photo_url", "name", "no_hp", "latitude", "longitude"],
+                        attributes: [
+                            "image_url",
+                            "name",
+                            "no_hp",
+                            "latitude",
+                            "longitude",
+                        ],
                     },
                 ],
-                limit: size ? parseInt(size) : null,
+                limit: size ? size : 10,
             });
         } else {
             vendors = await dbVendors.findAll({
                 include: [
                     {
                         model: dbUsers,
-                        attributes: ["photo_url", "name", "no_hp"],
+                        attributes: [
+                            "image_url",
+                            "name",
+                            "no_hp",
+                        ],
                     },
                 ],
-                limit: size ? parseInt(size) : null,
+                limit: size ? size : 10,
             });
         }
 
@@ -42,7 +50,7 @@ export const getVendors = async (req, res) => {
             return {
                 vendorId: vendor.vendorId,
                 userId: vendor.userId,
-                photo_url: vendor.user.photo_url,
+                image_url: vendor.user.image_url,
                 name: vendor.user.name,
                 name_vendor: vendor.name_vendor,
                 no_hp: vendor.user.no_hp,
@@ -60,7 +68,7 @@ export const getVendors = async (req, res) => {
             listVendors: formattedVendors,
         });
     } catch (err) {
-        console.error("[ERROR]", err);
+        // console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

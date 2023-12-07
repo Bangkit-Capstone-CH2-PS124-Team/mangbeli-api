@@ -13,6 +13,7 @@ import vendors from "./routes/vendors.js";
 import location from "./routes/location.js";
 import token from "./routes/token.js";
 import logout from "./routes/logout.js";
+import tracks from "./routes/tracks.js";
 
 const port = process.env.PORT;
 const app = express();
@@ -46,6 +47,7 @@ app.use("/vendors", vendors);
 app.use("/location", location);
 app.use("/token", token);
 app.use("/logout", logout);
+app.use("/tracks", tracks);
 
 app.use((req, res) => {
     res.status(404).json({

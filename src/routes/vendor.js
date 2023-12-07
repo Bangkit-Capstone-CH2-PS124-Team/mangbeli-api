@@ -1,10 +1,11 @@
 /* eslint-disable new-cap */
 import express from "express";
-import {getVendor, patchVendor} from "../controller/vendor.js";
+import {myProfile, getVendor, patchVendor} from "../controller/vendor.js";
 import {verifyToken} from "../middleware/verify.js";
 
 const router = express.Router();
 
+router.get("/profile", verifyToken, myProfile);
 router.get("/", verifyToken, getVendor);
 router.patch("/", verifyToken, patchVendor);
 router.all("/", (req, res) => {

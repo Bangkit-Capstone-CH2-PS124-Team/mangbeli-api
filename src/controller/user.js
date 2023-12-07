@@ -8,6 +8,39 @@ import mime from "mime-types";
 const storage = new Storage({keyFilename: "credentials.json"});
 const bucket = storage.bucket(process.env.BUCKET_NAME);
 
+export const myProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const user = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: {exclude: ["password", "refresh_token"]},
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                error: true,
+                message: "User not found",
+            });
+        }
+
+        res.json({
+            error: false,
+            message: "User fetched successfully",
+            dataUser: user,
+        });
+    } catch (err) {
+        // console.error("[ERROR]", err);
+        res.status(500).json({
+            error: true,
+            message: "Internal Server Error",
+            errorMessage: err.message,
+        });
+    }
+};
+
 export const getUser = async (req, res) => {
     try {
         const userId = req.query.userId;

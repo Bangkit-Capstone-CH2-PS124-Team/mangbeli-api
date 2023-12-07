@@ -7,10 +7,10 @@ import db from "./config/database.js";
 // import dbUsers from "./models/users.js";
 import register from "./routes/register.js";
 import login from "./routes/login.js";
-import location from "./routes/location.js";
-import vendors from "./routes/vendors.js";
 import user from "./routes/user.js";
 import vendor from "./routes/vendor.js";
+import vendors from "./routes/vendors.js";
+import location from "./routes/location.js";
 import token from "./routes/token.js";
 import logout from "./routes/logout.js";
 
@@ -40,10 +40,10 @@ app.get("/", (req, res) => {
 
 app.use("/register", register);
 app.use("/login", login);
-app.use("/location", location);
-app.use("/vendors", vendors);
 app.use("/user", user);
 app.use("/vendor", vendor);
+app.use("/vendors", vendors);
+app.use("/location", location);
 app.use("/token", token);
 app.use("/logout", logout);
 

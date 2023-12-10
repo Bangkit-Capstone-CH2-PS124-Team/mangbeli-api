@@ -5,7 +5,7 @@ import {Storage} from "@google-cloud/storage";
 import path from "path";
 import mime from "mime-types";
 
-const storage = new Storage({keyFilename: "credentials.json"});
+const storage = new Storage({keyFilename: "credentials-bucket.json"});
 const bucket = storage.bucket(process.env.BUCKET_NAME);
 
 export const myProfile = async (req, res) => {

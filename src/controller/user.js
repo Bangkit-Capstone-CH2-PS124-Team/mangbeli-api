@@ -1,9 +1,14 @@
+/* eslint-disable max-len */
 /* eslint-disable camelcase */
 import dbUsers from "../models/users.js";
+import dbVendors from "../models/vendors.js";
 import bcrypt from "bcrypt";
 import {Storage} from "@google-cloud/storage";
 import path from "path";
 import mime from "mime-types";
+import {customAlphabet} from "nanoid";
+
+const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 10);
 
 const storage = new Storage({keyFilename: "credentials-bucket.json"});
 const bucket = storage.bucket(process.env.BUCKET_NAME);
@@ -37,13 +42,17 @@ export const myProfile = async (req, res) => {
 export const patchProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const {name, oldPassword, newPassword, no_hp, favorite} = req.body;
+        const {name, oldPassword, newPassword, no_hp, favorite, role} = req.body;
 
         const user = await dbUsers.findOne({
             where: {
                 userId,
             },
         });
+
+        if (name) {
+            await dbUsers.update({name}, {where: {userId}});
+        }
 
         if (oldPassword) {
             if (!newPassword) {
@@ -72,32 +81,33 @@ export const patchProfile = async (req, res) => {
             const salt = await bcrypt.genSalt();
             const hashPassword = await bcrypt.hash(newPassword, salt);
 
-            await dbUsers.update(
-                {
-                    name,
-                    password: hashPassword,
-                    no_hp,
-                    favorite,
-                },
-                {
-                    where: {
-                        userId,
-                    },
-                },
-            );
-        } else {
-            await dbUsers.update(
-                {
-                    name,
-                    no_hp,
-                    favorite,
-                },
-                {
-                    where: {
-                        userId,
-                    },
-                },
-            );
+            await dbUsers.update({password: hashPassword}, {where: {userId}});
+        }
+
+        if (no_hp) {
+            await dbUsers.update({no_hp}, {where: {userId}});
+        }
+
+        if (favorite) {
+            await dbUsers.update({favorite}, {where: {userId}});
+        }
+
+        if (role !== "user" && role !== "vendor") {
+            return res.status(400).json({
+                error: true,
+                message: "Invalid role",
+            });
+        }
+
+        if (role) {
+            await dbUsers.update({role}, {where: {userId}});
+        }
+
+        if (role === "vendor") {
+            await dbVendors.create({
+                vendorId: nanoid(),
+                userId: userId,
+            });
         }
 
         res.json({
@@ -174,16 +184,7 @@ export const uploadImage = async (req, res) => {
         blobStream.on("finish", async () => {
             req.file.cloudStoragePublicUrl = `https://storage.googleapis.com/${process.env.BUCKET_NAME}/${fileName}`;
 
-            await dbUsers.update(
-                {
-                    image_url: req.file.cloudStoragePublicUrl,
-                },
-                {
-                    where: {
-                        userId,
-                    },
-                },
-            ),
+            await dbUsers.update({image_url: req.file.cloudStoragePublicUrl}, {where: {userId}});
 
             res.json({
                 error: false,

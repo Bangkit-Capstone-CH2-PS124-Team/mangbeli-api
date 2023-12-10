@@ -1,10 +1,17 @@
 /* eslint-disable camelcase */
+import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
 
 export const myProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const role = req.role;
+
+        const role = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: ["role"],
+        }).then((user) => user?.role);
 
         if (role !== "vendor") {
             return res.status(403).json({
@@ -37,8 +44,14 @@ export const myProfile = async (req, res) => {
 export const patchProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const role = req.role;
         const {name_vendor, products, minPrice, maxPrice} = req.body;
+
+        const role = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: ["role"],
+        }).then((user) => user?.role);
 
         if (role !== "vendor") {
             return res.status(403).json({

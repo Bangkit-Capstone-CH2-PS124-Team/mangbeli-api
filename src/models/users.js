@@ -33,7 +33,6 @@ const dbUsers = db.define(
         },
         role: {
             type: DataTypes.ENUM("user", "vendor"),
-            allowNull: false,
         },
         latitude: {
             type: DataTypes.DOUBLE,

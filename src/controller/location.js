@@ -8,6 +8,7 @@ const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 
 export const patchLoc = async (req, res) => {
     try {
+        const userId = req.userId;
         const {latitude, longitude} = req.body;
 
         if (!latitude || !longitude) {
@@ -17,9 +18,6 @@ export const patchLoc = async (req, res) => {
             });
         }
 
-        const userId = req.userId;
-        const role = req.role;
-
         await dbUsers.update(
             {latitude, longitude},
             {
@@ -28,6 +26,13 @@ export const patchLoc = async (req, res) => {
                 },
             },
         );
+
+        const role = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: ["role"],
+        }).then((user) => user?.role);
 
         if (role === "vendor") {
             const vendor = await dbVendors.findOne({

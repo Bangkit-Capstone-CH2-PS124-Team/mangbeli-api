@@ -92,22 +92,22 @@ export const patchProfile = async (req, res) => {
             await dbUsers.update({favorite}, {where: {userId}});
         }
 
-        if (role !== "user" && role !== "vendor") {
-            return res.status(400).json({
-                error: true,
-                message: "Invalid role",
-            });
-        }
-
         if (role) {
-            await dbUsers.update({role}, {where: {userId}});
-        }
+            if (role !== "user" && role !== "vendor") {
+                return res.status(400).json({
+                    error: true,
+                    message: "Invalid role",
+                });
+            }
 
-        if (role === "vendor") {
-            await dbVendors.create({
-                vendorId: nanoid(),
-                userId: userId,
-            });
+            await dbUsers.update({role}, {where: {userId}});
+
+            if (role === "vendor") {
+                await dbVendors.create({
+                    vendorId: nanoid(),
+                    userId: userId,
+                });
+            }
         }
 
         res.json({

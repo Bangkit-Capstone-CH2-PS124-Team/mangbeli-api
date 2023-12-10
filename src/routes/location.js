@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.patch("/", verifyToken, patchLoc);
 router.get("/", verifyToken, getLoc);
+router.delete("/", verifyToken, deleteLoc);
 router.all("/", (req, res) => {
     res.status(405).json({
         error: true,

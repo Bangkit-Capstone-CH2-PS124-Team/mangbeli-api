@@ -52,7 +52,7 @@ app.use("/tracks", tracks);
 app.use((req, res) => {
     res.status(404).json({
         error: true,
-        message: "Not found",
+        message: "Endpoint Not found",
     });
 });
 

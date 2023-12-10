@@ -44,7 +44,7 @@ export const myProfile = async (req, res) => {
 export const patchProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const {name_vendor, products, minPrice, maxPrice} = req.body;
+        const {nameVendor, products, minPrice, maxPrice} = req.body;
 
         const role = await dbUsers.findOne({
             where: {
@@ -62,7 +62,7 @@ export const patchProfile = async (req, res) => {
 
         await dbVendors.update(
             {
-                name_vendor,
+                nameVendor,
                 products,
                 minPrice,
                 maxPrice,

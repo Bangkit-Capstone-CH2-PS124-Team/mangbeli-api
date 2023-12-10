@@ -21,7 +21,7 @@ export const myProfile = async (req, res) => {
             where: {
                 userId,
             },
-            attributes: {exclude: ["password", "refresh_token"]},
+            attributes: {exclude: ["password", "refreshToken"]},
         });
 
         res.json({
@@ -42,7 +42,7 @@ export const myProfile = async (req, res) => {
 export const patchProfile = async (req, res) => {
     try {
         const userId = req.userId;
-        const {name, oldPassword, newPassword, no_hp, favorite, role} = req.body;
+        const {name, oldPassword, newPassword, noHp, favorite, role} = req.body;
 
         const user = await dbUsers.findOne({
             where: {
@@ -84,8 +84,8 @@ export const patchProfile = async (req, res) => {
             await dbUsers.update({password: hashPassword}, {where: {userId}});
         }
 
-        if (no_hp) {
-            await dbUsers.update({no_hp}, {where: {userId}});
+        if (noHp) {
+            await dbUsers.update({noHp}, {where: {userId}});
         }
 
         if (favorite) {
@@ -184,7 +184,7 @@ export const uploadImage = async (req, res) => {
         blobStream.on("finish", async () => {
             req.file.cloudStoragePublicUrl = `https://storage.googleapis.com/${process.env.BUCKET_NAME}/${fileName}`;
 
-            await dbUsers.update({image_url: req.file.cloudStoragePublicUrl}, {where: {userId}});
+            await dbUsers.update({imageUrl: req.file.cloudStoragePublicUrl}, {where: {userId}});
 
             res.json({
                 error: false,
@@ -219,7 +219,7 @@ export const getUser = async (req, res) => {
             where: {
                 userId,
             },
-            attributes: {exclude: ["password", "refresh_token"]},
+            attributes: {exclude: ["password", "refreshToken"]},
         });
 
         if (!user) {

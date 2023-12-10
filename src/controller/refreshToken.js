@@ -14,7 +14,7 @@ export const refreshToken = async (req, res) => {
 
         const user = await dbUsers.findAll({
             where: {
-                refresh_token: refreshToken,
+                refreshToken,
             },
         });
 

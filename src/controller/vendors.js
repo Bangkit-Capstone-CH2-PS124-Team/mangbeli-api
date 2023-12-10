@@ -20,9 +20,9 @@ export const getVendors = async (req, res) => {
                     {
                         model: dbUsers,
                         attributes: [
-                            "image_url",
+                            "imageUrl",
                             "name",
-                            "no_hp",
+                            "noHp",
                             "latitude",
                             "longitude",
                         ],
@@ -36,9 +36,9 @@ export const getVendors = async (req, res) => {
                     {
                         model: dbUsers,
                         attributes: [
-                            "image_url",
+                            "imageUrl",
                             "name",
-                            "no_hp",
+                            "noHp",
                         ],
                     },
                 ],
@@ -50,10 +50,10 @@ export const getVendors = async (req, res) => {
             return {
                 vendorId: vendor.vendorId,
                 userId: vendor.userId,
-                image_url: vendor.user.image_url,
+                imageUrl: vendor.user.imageUrl,
                 name: vendor.user.name,
-                name_vendor: vendor.name_vendor,
-                no_hp: vendor.user.no_hp,
+                nameVendor: vendor.nameVendor,
+                noHp: vendor.user.noHp,
                 products: vendor.products,
                 minPrice: vendor.minPrice,
                 maxPrice: vendor.maxPrice,

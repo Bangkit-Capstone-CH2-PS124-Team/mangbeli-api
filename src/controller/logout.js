@@ -10,7 +10,7 @@ export const Logout = async (req, res) => {
 
         const user = await dbUsers.findAll({
             where: {
-                refresh_token: refreshToken,
+                refreshToken,
             },
         });
 
@@ -19,7 +19,7 @@ export const Logout = async (req, res) => {
         }
 
         const userId = user[0].userId;
-        await dbUsers.update({refresh_token: null}, {
+        await dbUsers.update({refreshToken: null}, {
             where: {
                 userId,
             },

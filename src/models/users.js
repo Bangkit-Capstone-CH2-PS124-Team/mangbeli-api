@@ -22,13 +22,13 @@ const dbUsers = db.define(
         password: {
             type: DataTypes.STRING,
         },
-        refresh_token: {
+        refreshToken: {
             type: DataTypes.TEXT,
         },
-        image_url: {
+        imageUrl: {
             type: DataTypes.STRING,
         },
-        no_hp: {
+        noHp: {
             type: DataTypes.STRING,
         },
         role: {

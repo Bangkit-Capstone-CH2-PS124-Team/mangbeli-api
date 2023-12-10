@@ -61,7 +61,7 @@ export const Login = async (req, res) => {
                 expiresIn: "1d",
             });
 
-        await dbUsers.update({refresh_token: refreshToken}, {
+        await dbUsers.update({refreshToken}, {
             where: {
                 userId,
             },

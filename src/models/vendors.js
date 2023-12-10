@@ -19,7 +19,7 @@ const dbVendors = db.define(
                 key: "userId",
             },
         },
-        name_vendor: {
+        nameVendor: {
             type: DataTypes.STRING,
         },
         products: {

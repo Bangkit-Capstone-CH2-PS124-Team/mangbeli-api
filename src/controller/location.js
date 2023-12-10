@@ -107,3 +107,30 @@ export const getLoc = async (req, res) => {
         });
     }
 };
+
+export const deleteLoc = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        await dbUsers.update(
+            {latitude: null, longitude: null},
+            {
+                where: {
+                    userId,
+                },
+            },
+        );
+
+        res.json({
+            error: false,
+            message: "Location deleted successfully",
+        });
+    } catch (err) {
+        // console.error("[ERROR]", err);
+        res.status(500).json({
+            error: true,
+            message: "Internal Server Error",
+            errorMessage: err.message,
+        });
+    }
+};

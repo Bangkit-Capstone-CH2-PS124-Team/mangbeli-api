@@ -54,11 +54,11 @@ export const Login = async (req, res) => {
         const role = user[0].role;
         const accessToken = jwt.sign({userId, email},
             process.env.ACCESS_TOKEN_SECRET, {
-                expiresIn: "1h",
+                expiresIn: "30d",
             });
         const refreshToken = jwt.sign({userId, email},
             process.env.REFRESH_TOKEN_SECRET, {
-                expiresIn: "1d",
+                expiresIn: "90d",
             });
 
         await dbUsers.update({refreshToken}, {
@@ -69,7 +69,7 @@ export const Login = async (req, res) => {
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 1d
+            maxAge: 90 * 24 * 60 * 60 * 1000, // 90d
             secure: true,
         });
 

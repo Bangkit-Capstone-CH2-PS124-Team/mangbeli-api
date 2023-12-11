@@ -4,13 +4,14 @@ import express from "express";
 import multer from "multer";
 import {myProfile, getUser, patchProfile, uploadImage} from "../controller/user.js";
 import {verifyToken} from "../middleware/verify.js";
+import {checkContentType} from "../middleware/media.js";
 
 const upload = multer();
 const router = express.Router();
 
 router.get("/profile", verifyToken, myProfile);
 router.patch("/profile", verifyToken, patchProfile);
-router.post("/profile/upload", upload.single("image"), verifyToken, uploadImage);
+router.post("/profile/upload", checkContentType, upload.single("image"), verifyToken, uploadImage);
 router.get("/", verifyToken, getUser);
 router.all("/", (req, res) => {
     res.status(405).json({

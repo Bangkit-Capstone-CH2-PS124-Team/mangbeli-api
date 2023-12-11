@@ -1,6 +1,6 @@
 /* eslint-disable new-cap */
 import express from "express";
-import {patchLoc, getLoc} from "../controller/location.js";
+import {patchLoc, getLoc, deleteLoc} from "../controller/location.js";
 import {verifyToken} from "../middleware/verify.js";
 
 const router = express.Router();

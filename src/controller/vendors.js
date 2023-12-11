@@ -1,3 +1,6 @@
+/* eslint-disable indent */
+/* eslint-disable operator-linebreak */
+/* eslint-disable max-len */
 import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
 
@@ -7,8 +10,6 @@ export const getVendors = async (req, res) => {
         const size = parseInt(req.query.size) || 10;
         const location = parseInt(req.query.location) || 0;
         const filter = req.query.filter;
-        let orderQuery = [];
-        let vendors;
         const offset = (page - 1) * size;
 
         if (location !== 1 && location !== 0) {
@@ -18,51 +19,30 @@ export const getVendors = async (req, res) => {
             });
         }
 
-        if (filter === "name") {
-            orderQuery = [["nameVendor", "ASC"]];
-        } else if (filter === "minPrice") {
-            orderQuery = [["minPrice", "ASC"]];
-        } else if (filter === "maxPrice") {
-            orderQuery = [["maxPrice", "DESC"]];
-        }
+        const orderQuery =
+            filter === "name"
+                ? [["nameVendor", "ASC"]]
+                : filter === "minPrice"
+                ? [["minPrice", "ASC"]]
+                : filter === "maxPrice"
+                ? [["maxPrice", "DESC"]]
+                : [];
 
-        if (location === 1) {
-            vendors = await dbVendors.findAll({
-                include: [
-                    {
-                        model: dbUsers,
-                        attributes: [
-                            "imageUrl",
-                            "name",
-                            "noHp",
-                            "latitude",
-                            "longitude",
-                        ],
-                    },
-                ],
-                limit: size,
-                offset: offset,
-                order: orderQuery,
-            });
-        } else {
-            vendors = await dbVendors.findAll({
-                include: [
-                    {
-                        model: dbUsers,
-                        attributes: [
-                            "imageUrl",
-                            "name",
-                            "noHp",
-                        ],
-                    },
-                ],
-                limit: size,
-                offset: offset,
-                order: orderQuery,
-            });
-        }
+        const vendors = await dbVendors.findAndCountAll({
+            include: [
+                {
+                    model: dbUsers,
+                    attributes: ["imageUrl", "name", "noHp", ...(location === 1 ? ["latitude", "longitude"] : [])],
+                },
+            ],
+            limit: size,
+            offset: offset,
+            order: orderQuery,
+        });
 
-        const formattedVendors = vendors.map((vendor) => {
+        const totalPages = Math.ceil(vendors.count / size);
+
+        const formattedVendors = vendors.rows.map((vendor) => {
             return {
                 vendorId: vendor.vendorId,
                 userId: vendor.userId,
@@ -82,6 +62,8 @@ export const getVendors = async (req, res) => {
             error: false,
             message: "Vendors fetched successfully",
             listVendors: formattedVendors,
+            currentPage: page,
+            totalPages: totalPages,
         });
     } catch (err) {
         // console.error("[ERROR]", err);

@@ -5,6 +5,7 @@ export const getVendors = async (req, res) => {
     try {
         const size = parseInt(req.query.size);
         const location = parseInt(req.query.location) || 0;
+        const filter = req.query.filter;
         let vendors;
 
         if (location !== 1 && location !== 0) {
@@ -12,6 +13,16 @@ export const getVendors = async (req, res) => {
                 error: true,
                 message: "Invalid value parameter location",
             });
+        }
+
+        let orderQuery = [];
+
+        if (filter === "name") {
+            orderQuery = [["nameVendor", "ASC"]];
+        } else if (filter === "minPrice") {
+            orderQuery = [["minPrice", "ASC"]];
+        } else if (filter === "maxPrice") {
+            orderQuery = [["maxPrice", "DESC"]];
         }
 
         if (location === 1) {
@@ -29,6 +40,7 @@ export const getVendors = async (req, res) => {
                     },
                 ],
                 limit: size ? size : 10,
+                order: orderQuery,
             });
         } else {
             vendors = await dbVendors.findAll({
@@ -43,6 +55,7 @@ export const getVendors = async (req, res) => {
                     },
                 ],
                 limit: size ? size : 10,
+                order: orderQuery,
             });
         }
 

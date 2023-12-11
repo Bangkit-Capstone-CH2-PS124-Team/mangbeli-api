@@ -3,10 +3,13 @@ import dbVendors from "../models/vendors.js";
 
 export const getVendors = async (req, res) => {
     try {
-        const size = parseInt(req.query.size);
+        const page = parseInt(req.query.page) || 1;
+        const size = parseInt(req.query.size) || 10;
         const location = parseInt(req.query.location) || 0;
         const filter = req.query.filter;
+        let orderQuery = [];
         let vendors;
+        const offset = (page - 1) * size;
 
         if (location !== 1 && location !== 0) {
             return res.status(400).json({
@@ -14,8 +17,6 @@ export const getVendors = async (req, res) => {
                 message: "Invalid value parameter location",
             });
         }
-
-        let orderQuery = [];
 
         if (filter === "name") {
             orderQuery = [["nameVendor", "ASC"]];
@@ -39,7 +40,8 @@ export const getVendors = async (req, res) => {
                         ],
                     },
                 ],
-                limit: size ? size : 10,
+                limit: size,
+                offset: offset,
                 order: orderQuery,
             });
         } else {
@@ -54,7 +56,8 @@ export const getVendors = async (req, res) => {
                         ],
                     },
                 ],
-                limit: size ? size : 10,
+                limit: size,
+                offset: offset,
                 order: orderQuery,
             });
         }

@@ -184,6 +184,16 @@ export const uploadImage = async (req, res) => {
         blobStream.on("finish", async () => {
             req.file.cloudStoragePublicUrl = `https://storage.googleapis.com/${process.env.BUCKET_NAME}/${fileName}`;
 
+            const oldFile = await dbUsers.findOne({where: {userId}, attributes: ["imageUrl"]});
+
+            if (oldFile && oldFile.imageUrl) {
+                const urlParts = oldFile.imageUrl.split("/");
+                const oldFileName = urlParts[urlParts.length - 1];
+                const oldFileBlob = bucket.file(oldFileName);
+
+                await oldFileBlob.delete();
+            }
+
             await dbUsers.update({imageUrl: req.file.cloudStoragePublicUrl}, {where: {userId}});
 
             res.json({

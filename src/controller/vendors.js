@@ -146,63 +146,89 @@ export const getVendors = async (req, res) => {
         }
         : {};
 
-        const vendors = await dbVendors.findAndCountAll({
+        // Get vendors with latitude and longitude not null
+        const vendorsNotNullLocation = await dbVendors.findAll({
             include: [
                 {
                     model: dbUsers,
                     attributes: ["imageUrl", "name", "noHp", ...(location === 1 ? ["latitude", "longitude"] : [])],
                 },
             ],
-            limit: size,
-            offset: offset,
             order: orderQuery,
-            where: searchCondition,
+            where: {
+                ...searchCondition,
+                "$user.latitude$": {[Op.not]: null},
+                "$user.longitude$": {[Op.not]: null},
+            },
         });
 
-        const totalPages = Math.ceil(vendors.count / size);
+        // Get vendors with latitude or longitude as null
+        const vendorsWithNullLocation = await dbVendors.findAll({
+            include: [
+                {
+                    model: dbUsers,
+                    attributes: ["imageUrl", "name", "noHp", ...(location === 1 ? ["latitude", "longitude"] : [])],
+                },
+            ],
+            order: orderQuery,
+            where: {
+                ...searchCondition,
+                [Op.or]: [
+                    {"$user.latitude$": null},
+                    {"$user.longitude$": null},
+                ],
+            },
+        });
 
-        let formattedVendors = vendors.rows.reduce((vendorInfo, vendor) => {
-            if (filter === "nearby") {
-                const distance = userLat && userLng && vendor.user.latitude !== null && vendor.user.latitude !== null
-                    ? calculateDistance(userLat, userLng, vendor.user.latitude, vendor.user.longitude)
-                    : null;
+        const vendors = vendorsNotNullLocation.concat(vendorsWithNullLocation);
 
-                if (showNull === 1 || (showNull === 0 && distance !== null)) {
-                    vendorInfo.push({
-                        vendorId: vendor.vendorId,
-                        userId: vendor.userId,
-                        imageUrl: vendor.user.imageUrl,
-                        name: vendor.user.name,
-                        nameVendor: vendor.nameVendor,
-                        noHp: vendor.user.noHp,
-                        products: vendor.products,
-                        minPrice: vendor.minPrice,
-                        maxPrice: vendor.maxPrice,
-                        latitude: vendor.user.latitude,
-                        longitude: vendor.user.longitude,
-                        distance: distance,
-                    });
+        const totalPages = Math.ceil(vendors.length / size);
+
+        let formattedVendors = vendors.slice(offset, offset + size)
+            .map((vendor) => {
+                if (vendor) {
+                    if (filter === "nearby") {
+                        const distance = userLat && userLng && vendor.user.latitude !== null && vendor.user.latitude !== null
+                            ? calculateDistance(userLat, userLng, vendor.user.latitude, vendor.user.longitude)
+                            : null;
+
+                        if (showNull === 1 || (showNull === 0 && distance !== null)) {
+                            return {
+                                vendorId: vendor.vendorId,
+                                userId: vendor.userId,
+                                imageUrl: vendor.user.imageUrl,
+                                name: vendor.user.name,
+                                nameVendor: vendor.nameVendor,
+                                noHp: vendor.user.noHp,
+                                products: vendor.products,
+                                minPrice: vendor.minPrice,
+                                maxPrice: vendor.maxPrice,
+                                latitude: vendor.user.latitude,
+                                longitude: vendor.user.longitude,
+                                distance: distance,
+                            };
+                        }
+                    } else {
+                        const shouldInclude = (showNull === 0 && vendor.user.latitude !== null && vendor.user.longitude !== null) || (showNull === 1);
+                        if (shouldInclude) {
+                            return {
+                                vendorId: vendor.vendorId,
+                                userId: vendor.userId,
+                                imageUrl: vendor.user.imageUrl,
+                                name: vendor.user.name,
+                                nameVendor: vendor.nameVendor,
+                                noHp: vendor.user.noHp,
+                                products: vendor.products,
+                                minPrice: vendor.minPrice,
+                                maxPrice: vendor.maxPrice,
+                                latitude: vendor.user.latitude,
+                                longitude: vendor.user.longitude,
+                            };
+                        }
+                    }
                 }
-            } else {
-                const shouldInclude = (showNull === 0 && vendor.user.latitude !== null && vendor.user.longitude !== null) || (showNull === 1);
-                if (shouldInclude) {
-                    vendorInfo.push({
-                        vendorId: vendor.vendorId,
-                        userId: vendor.userId,
-                        imageUrl: vendor.user.imageUrl,
-                        name: vendor.user.name,
-                        nameVendor: vendor.nameVendor,
-                        noHp: vendor.user.noHp,
-                        products: vendor.products,
-                        minPrice: vendor.minPrice,
-                        maxPrice: vendor.maxPrice,
-                        latitude: vendor.user.latitude,
-                        longitude: vendor.user.longitude,
-                    });
-                }
-            }
-            return vendorInfo;
-        }, []);
+            })
+            .filter((vendor) => vendor !== undefined);
 
         if (filter === "name") {
             formattedVendors = formattedVendors.sort((a, b) => {

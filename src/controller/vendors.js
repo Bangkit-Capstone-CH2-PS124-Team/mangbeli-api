@@ -161,7 +161,7 @@ export const getVendors = async (req, res) => {
 
         const totalPages = Math.ceil(vendors.count / size);
 
-        const formattedVendors = vendors.rows.reduce((vendorInfo, vendor) => {
+        let formattedVendors = vendors.rows.reduce((vendorInfo, vendor) => {
             if (filter === "nearby") {
                 const distance = userLat && userLng && vendor.user.latitude !== null && vendor.user.latitude !== null
                     ? calculateDistance(userLat, userLng, vendor.user.latitude, vendor.user.longitude)
@@ -203,6 +203,34 @@ export const getVendors = async (req, res) => {
             }
             return vendorInfo;
         }, []);
+
+        if (filter === "name") {
+            formattedVendors = formattedVendors.sort((a, b) => {
+                if (a.nameVendor === null && b.nameVendor !== null) return 1;
+                if (a.nameVendor !== null && b.nameVendor === null) return -1;
+                return a.nameVendor.localeCompare(b.nameVendor);
+            });
+        }
+
+        if (filter === "minPrice") {
+            formattedVendors = formattedVendors.sort((a, b) => {
+                if (a.minPrice === null && b.minPrice !== null) return 1;
+                if (a.minPrice !== null && b.minPrice === null) return -1;
+                return a.minPrice - b.minPrice;
+            });
+        }
+
+        if (location === 1 && showNull === 1) {
+            formattedVendors = formattedVendors.sort((a, b) => {
+                const aLocationNull = a.latitude === null || a.longitude === null;
+                const bLocationNull = b.latitude === null || b.longitude === null;
+
+                if (aLocationNull && !bLocationNull) return 1;
+                if (!aLocationNull && bLocationNull) return -1;
+
+                return 0;
+            });
+        }
 
         if (filter === "nearby") {
             formattedVendors.sort((a, b) => (a.distance === null && b.distance !== null ? 1 : a.distance !== null && b.distance === null ? -1 : 0));

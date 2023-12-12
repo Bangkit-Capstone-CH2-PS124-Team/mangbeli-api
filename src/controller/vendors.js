@@ -1,6 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable operator-linebreak */
 /* eslint-disable max-len */
+import {Sequelize, Op} from "sequelize";
 import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
 
@@ -32,9 +33,11 @@ export const getVendors = async (req, res) => {
         const location = parseInt(req.query.location) || 0;
         const showNull = parseInt(req.query.null) || 0;
         const filter = req.query.filter;
-        const offset = (page - 1) * size;
         const userLat = parseFloat(req.query.latitude);
         const userLng = parseFloat(req.query.longitude);
+        const searchQuery = req.query.search;
+
+        const offset = (page - 1) * size;
 
         if (page < 0) {
             return res.status(400).json({
@@ -75,7 +78,13 @@ export const getVendors = async (req, res) => {
             if (location !== 1) {
                 return res.status(400).json({
                     error: true,
-                    message: "Value parameter location must be 1 when filter is 'nearby'",
+                    message: "Value parameter location required and must be 1 when filter is 'nearby'",
+                });
+            }
+            if (!userLat && !userLng) {
+                return res.status(400).json({
+                    error: true,
+                    message: "Value parameter latitude and longitude required",
                 });
             }
             if (!userLat) {
@@ -90,6 +99,13 @@ export const getVendors = async (req, res) => {
                     message: "Value parameter longitude required",
                 });
             }
+        }
+
+        if (searchQuery && searchQuery.length < 2) {
+            return res.status(400).json({
+                error: true,
+                message: "Search query must be at least 2 characters long",
+            });
         }
 
         const orderQuery =
@@ -113,6 +129,23 @@ export const getVendors = async (req, res) => {
                 ]
                 : [];
 
+        const searchCondition = searchQuery
+        ? {
+            [Op.or]: [
+                Sequelize.where(
+                    Sequelize.fn("LOWER", Sequelize.col("nameVendor")),
+                    "LIKE",
+                    `%${searchQuery.toLowerCase()}%`,
+                ),
+                Sequelize.where(
+                    Sequelize.fn("LOWER", Sequelize.col("products")),
+                    "LIKE",
+                    `%${searchQuery.toLowerCase()}%`,
+                ),
+            ],
+        }
+        : {};
+
         const vendors = await dbVendors.findAndCountAll({
             include: [
                 {
@@ -123,6 +156,7 @@ export const getVendors = async (req, res) => {
             limit: size,
             offset: offset,
             order: orderQuery,
+            where: searchCondition,
         });
 
         const totalPages = Math.ceil(vendors.count / size);

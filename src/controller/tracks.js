@@ -8,7 +8,7 @@ export const getTracks = async (req, res) => {
             listTracks: tracks,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

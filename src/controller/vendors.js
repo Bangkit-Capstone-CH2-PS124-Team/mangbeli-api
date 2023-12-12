@@ -6,7 +6,7 @@ import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
 
 const calculateDistance = (userLat, userLng, vendorLat, vendorLng) => {
-    const R = 6371; // Radius Bumi dalam kilometer
+    const R = 6371; // Earth radius in kilometers
     const dLat = (vendorLat - userLat) * (Math.PI / 180);
     const dLng = (vendorLng - userLng) * (Math.PI / 180);
     const a =
@@ -32,9 +32,9 @@ export const getVendors = async (req, res) => {
         const size = parseInt(req.query.size) || 10;
         const location = parseInt(req.query.location) || 0;
         const showNull = parseInt(req.query.null) || 0;
-        const filter = req.query.filter;
         const userLat = parseFloat(req.query.latitude);
         const userLng = parseFloat(req.query.longitude);
+        const filter = req.query.filter;
         const searchQuery = req.query.search;
 
         const offset = (page - 1) * size;
@@ -132,77 +132,121 @@ export const getVendors = async (req, res) => {
         const searchCondition = searchQuery
         ? {
             [Op.or]: [
-                Sequelize.where(
-                    Sequelize.fn("LOWER", Sequelize.col("nameVendor")),
-                    "LIKE",
-                    `%${searchQuery.toLowerCase()}%`,
-                ),
-                Sequelize.where(
-                    Sequelize.fn("LOWER", Sequelize.col("products")),
-                    "LIKE",
-                    `%${searchQuery.toLowerCase()}%`,
-                ),
+                Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nameVendor")), "LIKE", `%${searchQuery.toLowerCase()}%`),
+                Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("products")), "LIKE", `%${searchQuery.toLowerCase()}%`),
             ],
         }
         : {};
 
-        const vendors = await dbVendors.findAndCountAll({
+        const vendorsNotNullLocation = await dbVendors.findAll({
             include: [
                 {
                     model: dbUsers,
                     attributes: ["imageUrl", "name", "noHp", ...(location === 1 ? ["latitude", "longitude"] : [])],
                 },
             ],
-            limit: size,
-            offset: offset,
             order: orderQuery,
-            where: searchCondition,
+            where: {
+                ...searchCondition,
+                "$user.latitude$": {[Op.not]: null},
+                "$user.longitude$": {[Op.not]: null},
+            },
         });
 
-        const totalPages = Math.ceil(vendors.count / size);
+        const vendorsWithNullLocation = await dbVendors.findAll({
+            include: [
+                {
+                    model: dbUsers,
+                    attributes: ["imageUrl", "name", "noHp", ...(location === 1 ? ["latitude", "longitude"] : [])],
+                },
+            ],
+            order: orderQuery,
+            where: {
+                ...searchCondition,
+                [Op.or]: [
+                    {"$user.latitude$": null},
+                    {"$user.longitude$": null},
+                ],
+            },
+        });
 
-        const formattedVendors = vendors.rows.reduce((vendorInfo, vendor) => {
-            if (filter === "nearby") {
-                const distance = userLat && userLng && vendor.user.latitude !== null && vendor.user.latitude !== null
-                    ? calculateDistance(userLat, userLng, vendor.user.latitude, vendor.user.longitude)
-                    : null;
+        const vendors = vendorsNotNullLocation.concat(vendorsWithNullLocation);
 
-                if (showNull === 1 || (showNull === 0 && distance !== null)) {
-                    vendorInfo.push({
-                        vendorId: vendor.vendorId,
-                        userId: vendor.userId,
-                        imageUrl: vendor.user.imageUrl,
-                        name: vendor.user.name,
-                        nameVendor: vendor.nameVendor,
-                        noHp: vendor.user.noHp,
-                        products: vendor.products,
-                        minPrice: vendor.minPrice,
-                        maxPrice: vendor.maxPrice,
-                        latitude: vendor.user.latitude,
-                        longitude: vendor.user.longitude,
-                        distance: distance,
-                    });
+        const totalPages = Math.ceil(vendors.length / size);
+
+        let formattedVendors = vendors.slice(offset, offset + size)
+            .map((vendor) => {
+                if (vendor) {
+                    if (filter === "nearby") {
+                        const distance = userLat && userLng && vendor.user.latitude !== null && vendor.user.latitude !== null
+                            ? calculateDistance(userLat, userLng, vendor.user.latitude, vendor.user.longitude)
+                            : null;
+
+                        if (showNull === 1 || (showNull === 0 && distance !== null)) {
+                            return {
+                                vendorId: vendor.vendorId,
+                                userId: vendor.userId,
+                                imageUrl: vendor.user.imageUrl,
+                                name: vendor.user.name,
+                                nameVendor: vendor.nameVendor,
+                                noHp: vendor.user.noHp,
+                                products: vendor.products,
+                                minPrice: vendor.minPrice,
+                                maxPrice: vendor.maxPrice,
+                                latitude: vendor.user.latitude,
+                                longitude: vendor.user.longitude,
+                                distance: distance,
+                            };
+                        }
+                    } else {
+                        const shouldInclude = (showNull === 0 && vendor.user.latitude !== null && vendor.user.longitude !== null) || (showNull === 1);
+                        if (shouldInclude) {
+                            return {
+                                vendorId: vendor.vendorId,
+                                userId: vendor.userId,
+                                imageUrl: vendor.user.imageUrl,
+                                name: vendor.user.name,
+                                nameVendor: vendor.nameVendor,
+                                noHp: vendor.user.noHp,
+                                products: vendor.products,
+                                minPrice: vendor.minPrice,
+                                maxPrice: vendor.maxPrice,
+                                latitude: vendor.user.latitude,
+                                longitude: vendor.user.longitude,
+                            };
+                        }
+                    }
                 }
-            } else {
-                const shouldInclude = (showNull === 0 && vendor.user.latitude !== null && vendor.user.longitude !== null) || (showNull === 1);
-                if (shouldInclude) {
-                    vendorInfo.push({
-                        vendorId: vendor.vendorId,
-                        userId: vendor.userId,
-                        imageUrl: vendor.user.imageUrl,
-                        name: vendor.user.name,
-                        nameVendor: vendor.nameVendor,
-                        noHp: vendor.user.noHp,
-                        products: vendor.products,
-                        minPrice: vendor.minPrice,
-                        maxPrice: vendor.maxPrice,
-                        latitude: vendor.user.latitude,
-                        longitude: vendor.user.longitude,
-                    });
-                }
-            }
-            return vendorInfo;
-        }, []);
+            })
+            .filter((vendor) => vendor !== undefined);
+
+        if (filter === "name") {
+            formattedVendors = formattedVendors.sort((a, b) => {
+                if (a.nameVendor === null && b.nameVendor !== null) return 1;
+                if (a.nameVendor !== null && b.nameVendor === null) return -1;
+                return a.nameVendor.localeCompare(b.nameVendor);
+            });
+        }
+
+        if (filter === "minPrice") {
+            formattedVendors = formattedVendors.sort((a, b) => {
+                if (a.minPrice === null && b.minPrice !== null) return 1;
+                if (a.minPrice !== null && b.minPrice === null) return -1;
+                return a.minPrice - b.minPrice;
+            });
+        }
+
+        if (location === 1 && showNull === 1) {
+            formattedVendors = formattedVendors.sort((a, b) => {
+                const aLocationNull = a.latitude === null || a.longitude === null;
+                const bLocationNull = b.latitude === null || b.longitude === null;
+
+                if (aLocationNull && !bLocationNull) return 1;
+                if (!aLocationNull && bLocationNull) return -1;
+
+                return 0;
+            });
+        }
 
         if (filter === "nearby") {
             formattedVendors.sort((a, b) => (a.distance === null && b.distance !== null ? 1 : a.distance !== null && b.distance === null ? -1 : 0));
@@ -216,7 +260,7 @@ export const getVendors = async (req, res) => {
             totalPages: totalPages,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

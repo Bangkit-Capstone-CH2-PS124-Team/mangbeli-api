@@ -30,7 +30,7 @@ export const myProfile = async (req, res) => {
             dataUser: user,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
@@ -115,7 +115,7 @@ export const patchProfile = async (req, res) => {
             message: "User updated successfully",
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
@@ -173,7 +173,7 @@ export const uploadImage = async (req, res) => {
         });
 
         blobStream.on("error", (err) => {
-            // console.error("[ERROR] uploading file:", err);
+            console.error("[ERROR] uploading file:", err);
             return res.status(500).json({
                 error: true,
                 message: "Error uploading image",
@@ -205,7 +205,7 @@ export const uploadImage = async (req, res) => {
 
         blobStream.end(req.file.buffer);
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
@@ -245,7 +245,7 @@ export const getUser = async (req, res) => {
             dataUser: user,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

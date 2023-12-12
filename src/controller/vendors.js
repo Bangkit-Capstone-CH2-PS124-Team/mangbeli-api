@@ -184,7 +184,7 @@ export const getVendors = async (req, res) => {
                     });
                 }
             } else {
-                const shouldInclude = (showNull === 1 && vendor.user.latitude !== null && vendor.user.longitude !== null) || (showNull === 0);
+                const shouldInclude = (showNull === 0 && vendor.user.latitude !== null && vendor.user.longitude !== null) || (showNull === 1);
                 if (shouldInclude) {
                     vendorInfo.push({
                         vendorId: vendor.vendorId,

@@ -56,7 +56,7 @@ export const patchLoc = async (req, res) => {
             message: "Location updated successfully",
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
@@ -99,7 +99,7 @@ export const getLoc = async (req, res) => {
             longitude,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
@@ -126,7 +126,7 @@ export const deleteLoc = async (req, res) => {
             message: "Location deleted successfully",
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

@@ -32,7 +32,7 @@ export const myProfile = async (req, res) => {
             dataVendor: vendor,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
@@ -78,7 +78,7 @@ export const patchProfile = async (req, res) => {
             message: "Vendor updated successfully",
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",
@@ -117,7 +117,7 @@ export const getVendor = async (req, res) => {
             dataVendor: vendor,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

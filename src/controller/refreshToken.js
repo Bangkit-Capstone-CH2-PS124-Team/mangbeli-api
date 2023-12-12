@@ -47,7 +47,7 @@ export const refreshToken = async (req, res) => {
                 });
             });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

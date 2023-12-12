@@ -6,7 +6,7 @@ import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
 
 const calculateDistance = (userLat, userLng, vendorLat, vendorLng) => {
-    const R = 6371; // Radius Bumi dalam kilometer
+    const R = 6371; // Earth radius in kilometers
     const dLat = (vendorLat - userLat) * (Math.PI / 180);
     const dLng = (vendorLng - userLng) * (Math.PI / 180);
     const a =
@@ -32,9 +32,9 @@ export const getVendors = async (req, res) => {
         const size = parseInt(req.query.size) || 10;
         const location = parseInt(req.query.location) || 0;
         const showNull = parseInt(req.query.null) || 0;
-        const filter = req.query.filter;
         const userLat = parseFloat(req.query.latitude);
         const userLng = parseFloat(req.query.longitude);
+        const filter = req.query.filter;
         const searchQuery = req.query.search;
 
         const offset = (page - 1) * size;
@@ -132,21 +132,12 @@ export const getVendors = async (req, res) => {
         const searchCondition = searchQuery
         ? {
             [Op.or]: [
-                Sequelize.where(
-                    Sequelize.fn("LOWER", Sequelize.col("nameVendor")),
-                    "LIKE",
-                    `%${searchQuery.toLowerCase()}%`,
-                ),
-                Sequelize.where(
-                    Sequelize.fn("LOWER", Sequelize.col("products")),
-                    "LIKE",
-                    `%${searchQuery.toLowerCase()}%`,
-                ),
+                Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nameVendor")), "LIKE", `%${searchQuery.toLowerCase()}%`),
+                Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("products")), "LIKE", `%${searchQuery.toLowerCase()}%`),
             ],
         }
         : {};
 
-        // Get vendors with latitude and longitude not null
         const vendorsNotNullLocation = await dbVendors.findAll({
             include: [
                 {
@@ -162,7 +153,6 @@ export const getVendors = async (req, res) => {
             },
         });
 
-        // Get vendors with latitude or longitude as null
         const vendorsWithNullLocation = await dbVendors.findAll({
             include: [
                 {
@@ -270,7 +260,7 @@ export const getVendors = async (req, res) => {
             totalPages: totalPages,
         });
     } catch (err) {
-        // console.error("[ERROR]", err);
+        console.error("[ERROR]", err);
         res.status(500).json({
             error: true,
             message: "Internal Server Error",

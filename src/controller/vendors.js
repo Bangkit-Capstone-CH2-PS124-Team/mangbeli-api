@@ -222,9 +222,13 @@ export const getVendors = async (req, res) => {
 
         if (filter === "name") {
             formattedVendors = formattedVendors.sort((a, b) => {
-                if (a.nameVendor === null && b.nameVendor !== null) return 1;
-                if (a.nameVendor !== null && b.nameVendor === null) return -1;
-                return a.nameVendor.localeCompare(b.nameVendor);
+                const aName = a.nameVendor || "";
+                const bName = b.nameVendor || "";
+
+                if (aName === "" && bName !== "") return 1;
+                if (aName !== "" && bName === "") return -1;
+
+                return aName.localeCompare(bName);
             });
         }
 

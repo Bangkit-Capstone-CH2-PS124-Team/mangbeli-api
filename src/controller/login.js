@@ -67,9 +67,13 @@ export const Login = async (req, res) => {
             },
         });
 
+        const timezoneJakarta = 7 * 60 * 60 * 1000; // GMT+7
+        const maxAge = 90 * 24 * 60 * 60 * 1000; // 90 days
+        const maxAgeWithTimezone = maxAge + timezoneJakarta;
+
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            maxAge: 90 * 24 * 60 * 60 * 1000, // 90d
+            maxAge: maxAgeWithTimezone,
             secure: true,
         });
 

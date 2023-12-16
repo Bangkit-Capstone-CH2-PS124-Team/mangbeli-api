@@ -91,7 +91,7 @@ export const getVendors = async (req, res) => {
             if (!user.latitude && !user.longitude) {
                 return res.status(400).json({
                     error: true,
-                    message: "Coordinates not found. Please turn on your location",
+                    message: "User coordinates not found. Please turn on your location",
                 });
             }
         }
@@ -257,6 +257,66 @@ export const getVendors = async (req, res) => {
             listVendors: formattedVendors,
             currentPage: page,
             totalPages: totalPages,
+        });
+    } catch (err) {
+        console.error("[ERROR]", err);
+        res.status(500).json({
+            error: true,
+            message: "Internal Server Error",
+            errorMessage: err.message,
+        });
+    }
+};
+
+export const getVendorsMaps = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const user = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: ["latitude", "longitude"],
+        });
+
+        if (!user.latitude || !user.longitude) {
+            return res.status(400).json({
+                error: true,
+                message: "User coordinates not found. Please turn on your location",
+            });
+        }
+
+        const vendors = await dbVendors.findAll({
+            include: [
+                {
+                    model: dbUsers,
+                    attributes: ["imageUrl", "name", "noHp", "latitude", "longitude"],
+                },
+            ],
+        });
+
+        const formattedVendors = vendors.map((vendor) => {
+            const distance = calculateDistance(user.latitude, user.longitude, vendor.user.latitude, vendor.user.longitude);
+            return {
+                vendorId: vendor.vendorId,
+                userId: vendor.userId,
+                imageUrl: vendor.user.imageUrl,
+                name: vendor.user.name,
+                nameVendor: vendor.nameVendor,
+                noHp: vendor.user.noHp,
+                products: vendor.products,
+                minPrice: vendor.minPrice,
+                maxPrice: vendor.maxPrice,
+                latitude: vendor.user.latitude,
+                longitude: vendor.user.longitude,
+                distance: distance,
+            };
+        });
+
+        res.json({
+            error: false,
+            message: "Maps vendors fetched successfully",
+            listVendors: formattedVendors,
         });
     } catch (err) {
         console.error("[ERROR]", err);

@@ -28,16 +28,22 @@ const calculateDistance = (userLat, userLng, vendorLat, vendorLng) => {
 
 export const getVendors = async (req, res) => {
     try {
+        const userId = req.userId;
         const page = parseInt(req.query.page) || 1;
         const size = parseInt(req.query.size) || 10;
         const location = parseInt(req.query.location) || 0;
         const showNull = parseInt(req.query.null) || 0;
-        const userLat = parseFloat(req.query.latitude);
-        const userLng = parseFloat(req.query.longitude);
         const filter = req.query.filter;
         const searchQuery = req.query.search;
 
         const offset = (page - 1) * size;
+
+        const user = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: ["latitude", "longitude"],
+        });
 
         if (page < 0) {
             return res.status(400).json({
@@ -81,22 +87,11 @@ export const getVendors = async (req, res) => {
                     message: "Value parameter location required and must be 1 when filter is 'nearby'",
                 });
             }
-            if (!userLat && !userLng) {
+
+            if (!user.latitude && !user.longitude) {
                 return res.status(400).json({
                     error: true,
-                    message: "Value parameter latitude and longitude required",
-                });
-            }
-            if (!userLat) {
-                return res.status(400).json({
-                    error: true,
-                    message: "Value parameter latitude required",
-                });
-            }
-            if (!userLng) {
-                return res.status(400).json({
-                    error: true,
-                    message: "Value parameter longitude required",
+                    message: "Coordinates not found. Please turn on your location",
                 });
             }
         }
@@ -115,13 +110,13 @@ export const getVendors = async (req, res) => {
                 ? [["minPrice", "ASC"]]
                 : filter === "maxPrice"
                 ? [["maxPrice", "DESC"]]
-                : filter === "nearby" && userLat && userLng
+                : filter === "nearby" && user.latitude && user.longitude
                 ? [
                     [
                         dbUsers.sequelize.literal(`(
                             6371 * acos(
-                                cos(radians(${userLat})) * cos(radians(\`user\`.\`latitude\`)) * cos(radians(\`user\`.\`longitude\`) - radians(${userLng})) +
-                                sin(radians(${userLat})) * sin(radians(\`user\`.\`latitude\`))
+                                cos(radians(${user.latitude})) * cos(radians(\`user\`.\`latitude\`)) * cos(radians(\`user\`.\`longitude\`) - radians(${user.longitude})) +
+                                sin(radians(${user.latitude})) * sin(radians(\`user\`.\`latitude\`))
                             )
                         )`),
                         "ASC",
@@ -178,8 +173,8 @@ export const getVendors = async (req, res) => {
             .map((vendor) => {
                 if (vendor) {
                     if (filter === "nearby") {
-                        const distance = userLat && userLng && vendor.user.latitude !== null && vendor.user.latitude !== null
-                            ? calculateDistance(userLat, userLng, vendor.user.latitude, vendor.user.longitude)
+                        const distance = user.latitude && user.longitude && vendor.user.latitude !== null && vendor.user.latitude !== null
+                            ? calculateDistance(user.latitude, user.longitude, vendor.user.latitude, vendor.user.longitude)
                             : null;
 
                         if (showNull === 1 || (showNull === 0 && distance !== null)) {

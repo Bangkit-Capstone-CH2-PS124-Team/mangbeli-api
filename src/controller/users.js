@@ -56,7 +56,7 @@ export const getUsersMaps = async (req, res) => {
         res.json({
             error: false,
             message: "Maps users fetched successfully",
-            listVendors: formattedUsers,
+            listUsers: formattedUsers,
         });
     } catch (err) {
         console.error("[ERROR]", err);

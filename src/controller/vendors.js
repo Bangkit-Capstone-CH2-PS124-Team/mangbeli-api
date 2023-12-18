@@ -4,27 +4,7 @@
 import {Sequelize, Op} from "sequelize";
 import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
-
-const calculateDistance = (userLat, userLng, vendorLat, vendorLng) => {
-    const R = 6371; // Earth radius in kilometers
-    const dLat = (vendorLat - userLat) * (Math.PI / 180);
-    const dLng = (vendorLng - userLng) * (Math.PI / 180);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(userLat * (Math.PI / 180)) * Math.cos(vendorLat * (Math.PI / 180)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    let distance = R * c;
-
-    distance = Math.round(distance * 100) / 100;
-    let unit = "KM";
-
-    if (distance < 1) {
-        distance = Math.round(distance * 1000);
-        unit = "Meter";
-    }
-
-    return `${distance} ${unit}`;
-};
+import {calculateDistance} from "../utils/distance.js";
 
 export const getVendors = async (req, res) => {
     try {
@@ -115,7 +95,8 @@ export const getVendors = async (req, res) => {
                     [
                         dbUsers.sequelize.literal(`(
                             6371 * acos(
-                                cos(radians(${user.latitude})) * cos(radians(\`user\`.\`latitude\`)) * cos(radians(\`user\`.\`longitude\`) - radians(${user.longitude})) +
+                                cos(radians(${user.latitude})) * cos(radians(\`user\`.\`latitude\`)) *
+                                cos(radians(\`user\`.\`longitude\`) - radians(${user.longitude})) +
                                 sin(radians(${user.latitude})) * sin(radians(\`user\`.\`latitude\`))
                             )
                         )`),
@@ -296,7 +277,12 @@ export const getVendorsMaps = async (req, res) => {
         });
 
         const formattedVendors = vendors.map((vendor) => {
-            const distance = calculateDistance(user.latitude, user.longitude, vendor.user.latitude, vendor.user.longitude);
+            const distance = calculateDistance(
+                user.latitude,
+                user.longitude,
+                vendor.user.latitude,
+                vendor.user.longitude,
+            );
             return {
                 vendorId: vendor.vendorId,
                 userId: vendor.userId,

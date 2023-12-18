@@ -8,6 +8,7 @@ import db from "./config/database.js";
 import register from "./routes/register.js";
 import login from "./routes/login.js";
 import user from "./routes/user.js";
+import users from "./routes/users.js";
 import vendor from "./routes/vendor.js";
 import vendors from "./routes/vendors.js";
 import location from "./routes/location.js";
@@ -42,6 +43,7 @@ app.get("/", (req, res) => {
 app.use("/register", register);
 app.use("/login", login);
 app.use("/user", user);
+app.use("/users", users);
 app.use("/vendor", vendor);
 app.use("/vendors", vendors);
 app.use("/location", location);

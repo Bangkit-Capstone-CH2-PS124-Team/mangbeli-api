@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-/* eslint-disable camelcase */
 import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
 import bcrypt from "bcrypt";

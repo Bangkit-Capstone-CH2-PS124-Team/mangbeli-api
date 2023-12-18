@@ -1,6 +1,7 @@
-/* eslint-disable camelcase */
+/* eslint-disable max-len */
 import dbUsers from "../models/users.js";
 import dbVendors from "../models/vendors.js";
+import {calculateDistance} from "../utils/distance.js";
 
 export const myProfile = async (req, res) => {
     try {
@@ -89,7 +90,22 @@ export const patchProfile = async (req, res) => {
 
 export const getVendor = async (req, res) => {
     try {
+        const userId = req.userId;
         const vendorId = req.query.vendorId;
+
+        const user = await dbUsers.findOne({
+            where: {
+                userId,
+            },
+            attributes: ["latitude", "longitude"],
+        });
+
+        if (!user.latitude || !user.longitude) {
+            return res.status(400).json({
+                error: true,
+                message: "User coordinates not found. Please turn on your location",
+            });
+        }
 
         if (!vendorId) {
             return res.status(400).json({
@@ -102,6 +118,12 @@ export const getVendor = async (req, res) => {
             where: {
                 vendorId,
             },
+            include: [
+                {
+                    model: dbUsers,
+                    attributes: ["imageUrl", "name", "noHp", "latitude", "longitude"],
+                },
+            ],
         });
 
         if (!vendor) {
@@ -111,10 +133,32 @@ export const getVendor = async (req, res) => {
             });
         }
 
+        const distance = calculateDistance(
+            user.latitude,
+            user.longitude,
+            vendor.user.latitude,
+            vendor.user.longitude,
+        );
+
+        const formattedVendor = {
+            vendorId: vendor.vendorId,
+            userId: vendor.userId,
+            imageUrl: vendor.user.imageUrl,
+            name: vendor.user.name,
+            nameVendor: vendor.nameVendor,
+            noHp: vendor.user.noHp,
+            products: vendor.products,
+            minPrice: vendor.minPrice,
+            maxPrice: vendor.maxPrice,
+            latitude: vendor.user.latitude,
+            longitude: vendor.user.longitude,
+            distance: distance,
+        };
+
         res.json({
             error: false,
             message: "Vendor fetched successfully",
-            dataVendor: vendor,
+            dataVendor: formattedVendor,
         });
     } catch (err) {
         console.error("[ERROR]", err);

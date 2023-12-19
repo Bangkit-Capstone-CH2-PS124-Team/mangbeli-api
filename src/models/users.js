@@ -43,6 +43,9 @@ const dbUsers = db.define(
         favorite: {
             type: DataTypes.JSON,
         },
+        fcm: {
+            type: DataTypes.TEXT,
+        },
     },
     {
         freezeTableName: true,

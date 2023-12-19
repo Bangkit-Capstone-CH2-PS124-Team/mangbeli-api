@@ -15,6 +15,8 @@ import location from "./routes/location.js";
 import token from "./routes/token.js";
 import logout from "./routes/logout.js";
 import tracks from "./routes/tracks.js";
+import fcm from "./routes/fcm.js";
+import notif from "./routes/notif.js";
 
 const port = process.env.PORT;
 const app = express();
@@ -50,6 +52,8 @@ app.use("/location", location);
 app.use("/token", token);
 app.use("/logout", logout);
 app.use("/tracks", tracks);
+app.use("/fcm", fcm);
+app.use("/notif", notif);
 
 app.use((req, res) => {
     res.status(404).json({

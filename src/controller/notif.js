@@ -50,6 +50,14 @@ export const Notification = async (req, res) => {
             },
             android: {
                 priority: "HIGH",
+                notification: {
+                    icon: "notif",
+                    visibility: "PUBLIC",
+                    notification_priority: "PRIORITY_MAX",
+                    sound: "default",
+                    default_vibrate_timings: true,
+                    default_light_settings: true,
+                },
             },
             apns: {
                 headers: {
@@ -82,4 +90,3 @@ export const Notification = async (req, res) => {
         });
     }
 };
-
